@@ -58,3 +58,62 @@ if (!global.atob) {
 if (!global.btoa) {
     global.btoa = (str) => base64js.fromByteArray(Uint8Array.from(str, (c) => c.charCodeAt(0)));
 }
+if (!global.navigator) {
+    global.navigator = { userAgent: "react-native" };
+} else if (!global.navigator.userAgent) {
+    global.navigator.userAgent = "react-native";
+}
+
+if (!global.location) {
+    global.location = {
+        href: "http://localhost",
+        pathname: "/",
+        hostname: "localhost",
+        protocol: "http:",
+        origin: "http://localhost",
+        search: "",
+        hash: ""
+    };
+}
+
+if (!global.process) {
+    global.process = require("process");
+}
+
+if (!global.process.env) {
+    global.process.env = {};
+}
+
+if (!global.process.nextTick) {
+    global.process.nextTick = (fn, ...args) => setTimeout(() => fn(...args), 0);
+}
+
+if (!global.process.version) {
+    global.process.version = "v16.0.0";
+}
+
+global.process.browser = true;
+
+// Browser-like environment polyfills
+if (typeof global.self === 'undefined') {
+    global.self = global;
+}
+
+if (typeof global.window === 'undefined') {
+    global.window = global;
+}
+
+if (!global.addEventListener) {
+    global.addEventListener = () => { };
+}
+
+if (!global.removeEventListener) {
+    global.removeEventListener = () => { };
+}
+
+if (!global.navigator) {
+    global.navigator = { userAgent: "react-native", product: "ReactNative" };
+} else {
+    if (!global.navigator.userAgent) global.navigator.userAgent = "react-native";
+    if (!global.navigator.product) global.navigator.product = "ReactNative";
+}

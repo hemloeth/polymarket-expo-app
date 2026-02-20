@@ -20,8 +20,9 @@ export default function useRelayClient() {
             const magic = getMagic();
 
             // Create Viem Wallet Client from Magic provider
+            const userInfo = await magic.user.getInfo();
             const walletClient = createWalletClient({
-                account: (await magic.user.getMetadata()).publicAddress,
+                account: userInfo.publicAddress,
                 chain: polygon,
                 transport: custom(magic.rpcProvider),
             });

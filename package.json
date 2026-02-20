@@ -15,6 +15,7 @@
     "@magic-sdk/react-native-expo": "^34.2.1",
     "@polymarket/builder-relayer-client": "^0.0.8",
     "@polymarket/builder-signing-sdk": "^0.0.8",
+    "@polymarket/clob-client": "^5.2.4",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/netinfo": "^12.0.1",
     "@react-navigation/bottom-tabs": "^7.14.0",
@@ -33,6 +34,7 @@
     "expo-crypto": "~15.0.8",
     "expo-linking": "^8.0.11",
     "expo-status-bar": "~3.0.9",
+    "process": "^0.11.10",
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-crypto": "^2.2.1",
@@ -43,6 +45,7 @@
     "react-native-svg": "15.12.1",
     "react-native-webview": "^13.16.0",
     "stream-browserify": "^3.0.0",
+    "util": "^0.12.5",
     "viem": "^2.46.2"
   },
   "private": true

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import useSafeDeployment from '../hooks/useSafeDeploment';
+import useSafeDeployment from '../hooks/useSafeDeployment';
 import { getSafeBalances } from '../balance/balance';
 import { authService } from '../services/authService';
 import { tokenService } from '../services/tokenService';

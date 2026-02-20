@@ -12,14 +12,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useWallet } from '../context/WalletContext';
+import SetupModal from '../components/setup/SetupModal';
 import useTokenApprovals from '../hooks/useTokenApprovals';
-import useRelayClient from '../hooks/useRelayClinet';
-import * as Clipboard from 'expo-clipboard';
+import useUserApiCredentials from '../hooks/useUserApiCredentials';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Clipboard from 'expo-clipboard';
 
 const colors = {
     bg: '#ffffff',
-    box: '#f7f7f7',
     textPrimary: '#000000',
     textSecondary: '#6e6e6e',
     textTertiary: '#9e9e9e',
@@ -27,12 +27,14 @@ const colors = {
     white: '#ffffff',
     success: '#4CAF50',
     error: '#FF5252',
+    box: '#f7f7f7',
+    border: '#eeeeee',
 };
 
 export default function WalletScreen() {
     const { logout, loading, safeAddress, safeBalances, transferUsdc, initializeSigner, signer, usdcBalance } = useWallet();
-    const { checkAllTokenApprovals, setAllTokenApprovals } = useTokenApprovals();
-    const { relayClient, initializeRelayClient } = useRelayClient();
+    const { checkAllTokenApprovals } = useTokenApprovals();
+    const { getStoredCredentials } = useUserApiCredentials();
 
     const [copied, setCopied] = useState(false);
     const [isWithdrawModalVisible, setIsWithdrawModalVisible] = useState(false);
@@ -42,8 +44,8 @@ export default function WalletScreen() {
 
     // Trading Setup State
     const [isTradingEnabled, setIsTradingEnabled] = useState(false);
-    const [isCheckingApprovals, setIsCheckingApprovals] = useState(false);
-    const [isEnablingTrading, setIsEnablingTrading] = useState(false);
+    const [isCheckingStatus, setIsCheckingStatus] = useState(false);
+    const [isSetupModalVisible, setIsSetupModalVisible] = useState(false);
 
     useEffect(() => {
         if (!signer) {
@@ -59,38 +61,15 @@ export default function WalletScreen() {
 
     const checkTradingStatus = async () => {
         if (!safeAddress) return;
-        setIsCheckingApprovals(true);
+        setIsCheckingStatus(true);
         try {
             const { allApproved } = await checkAllTokenApprovals(safeAddress);
-            setIsTradingEnabled(allApproved);
+            const credentials = await getStoredCredentials();
+            setIsTradingEnabled(allApproved && !!credentials);
         } catch (error) {
             console.error("Failed to check trading status:", error);
         } finally {
-            setIsCheckingApprovals(false);
-        }
-    };
-
-    const handleEnableTrading = async () => {
-        try {
-            setIsEnablingTrading(true);
-
-            let currentRelayClient = relayClient;
-            if (!currentRelayClient) {
-                currentRelayClient = await initializeRelayClient();
-            }
-
-            const success = await setAllTokenApprovals(currentRelayClient);
-            if (success) {
-                Alert.alert("Success", "Trading setup enabled successfully!");
-                await checkTradingStatus();
-            } else {
-                Alert.alert("Error", "Failed to enable trading setup. Please try again.");
-            }
-        } catch (error) {
-            console.error("Enable trading error:", error);
-            Alert.alert("Error", error.message || "Failed to enable trading");
-        } finally {
-            setIsEnablingTrading(false);
+            setIsCheckingStatus(false);
         }
     };
 
@@ -179,9 +158,9 @@ export default function WalletScreen() {
                                         size={20}
                                         color={isTradingEnabled ? colors.success : colors.error}
                                     />
-                                    <Text style={styles.tuningTitle}>Trading Setup</Text>
+                                    <Text style={styles.tuningTitle}>Trading Readiness</Text>
                                 </View>
-                                {isCheckingApprovals && <ActivityIndicator size="small" color={colors.accent} />}
+                                {isCheckingStatus && <ActivityIndicator size="small" color={colors.accent} />}
                             </View>
 
                             <View style={styles.tuningContent}>
@@ -189,18 +168,13 @@ export default function WalletScreen() {
                                     <Text style={styles.tuningStatusSuccess}>Your wallet is ready for trading on Polymarket.</Text>
                                 ) : (
                                     <>
-                                        <Text style={styles.tuningStatusPending}>Approvals are required to start trading.</Text>
+                                        <Text style={styles.tuningStatusPending}>Complete the setup to start trading on Polymarket.</Text>
                                         <TouchableOpacity
-                                            style={[styles.enableButton, isEnablingTrading && styles.disabledButton]}
-                                            onPress={handleEnableTrading}
-                                            disabled={isEnablingTrading || isCheckingApprovals}
+                                            style={styles.enableButton}
+                                            onPress={() => setIsSetupModalVisible(true)}
                                             activeOpacity={0.7}
                                         >
-                                            {isEnablingTrading ? (
-                                                <ActivityIndicator size="small" color={colors.white} />
-                                            ) : (
-                                                <Text style={styles.enableButtonText}>Enable Trading</Text>
-                                            )}
+                                            <Text style={styles.enableButtonText}>Complete Setup</Text>
                                         </TouchableOpacity>
                                     </>
                                 )}
@@ -311,6 +285,15 @@ export default function WalletScreen() {
                     </View>
                 </View>
             </Modal>
+            {/* Setup Modal */}
+            <SetupModal
+                visible={isSetupModalVisible}
+                onClose={() => setIsSetupModalVisible(false)}
+                onComplete={() => {
+                    setIsSetupModalVisible(false);
+                    checkTradingStatus();
+                }}
+            />
         </SafeAreaView>
     );
 }
@@ -433,7 +416,6 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 14,
         color: colors.textPrimary,
-        fontFamily: 'Platform', // Assuming a monospaced font if available, or just regular
         marginRight: 12,
     },
     copyButton: {

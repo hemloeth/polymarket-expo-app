@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import WalletScreen from '../screens/WalletScreen';
+import HomeScreen from '../screens/HomeScreen';
 import BottomNavigation from '../components/bottomNavigation/bottomNavbar';
 
 const screens = {
-    home: () => <View style={{ flex: 1 }} />,
+    home: HomeScreen,
     stats: () => <View style={{ flex: 1 }} />,
     trophy: () => <View style={{ flex: 1 }} />,
     albums: () => <View style={{ flex: 1 }} />,

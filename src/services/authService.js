@@ -38,8 +38,10 @@ export const authService = {
 
     async loginWithEmail(email) {
         try {
+            console.log('🚀 Initiating Magic login for email:', email);
             const magic = getMagic();
             await magic.auth.loginWithEmailOTP({ email });
+            console.log('📩 OTP verification successful for:', email);
             const userInfo = await magic.user.getInfo();
             const accounts = await magic.rpcProvider.request({
                 method: 'eth_accounts',
