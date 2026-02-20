@@ -1,11 +1,15 @@
 import { Magic } from '@magic-sdk/react-native-expo';
 import { OAuthExtension } from '@magic-ext/react-native-expo-oauth';
+import { createPublicClient, http } from "viem";
+import { polygon } from "viem/chains";
+
+
 
 let magicInstance = null;
 
 export function getMagic() {
     if (!magicInstance) {
-        magicInstance = new Magic('pk_live_E029673E82E77914', {  // paste your actual key here
+        magicInstance = new Magic(process.env.EXPO_PUBLIC_MAGIC_PUBLISHABLE_KEY, {  // paste your actual key here
             extensions: [new OAuthExtension()],
         });
         console.log('✅ Magic instance created');
@@ -13,5 +17,10 @@ export function getMagic() {
     }
     return magicInstance;
 }
+
+export const magicPublicClient = createPublicClient({
+    chain: polygon,
+    transport: http(process.env.EXPO_PUBLIC_RPC_URL || "https://polygon-rpc.com"),
+})
 
 export default getMagic;
